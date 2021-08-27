@@ -8,6 +8,7 @@ let accounts;
 let fundsAvailable;
 let globalTilePrice;
 let ethbalanceinWei;
+let currentaccount;
 let pixelmapaddress = '0x015A06a433353f8db634dF4eDdF0C109882A15AB';
 let wrapperaddress = '0x050dc61dFB867E0fE3Cf2948362b6c0F3fAF790b';
 
@@ -46,8 +47,9 @@ async function startApp() {
 	wrapper = await getWrapperContract(web3);
 	
 	ethbalanceinWei = await web3.eth.getBalance(accounts[0]);
+	currentaccount = web3.utils.toChecksumAddress(accounts[0]);
 	
-	console.log(accounts,accounts[0],ethbalanceinWei);
+	console.log(accounts,accounts[0],currentaccount,ethbalanceinWei);
 	let ContainerArray = document.getElementsByClassName('container');
 	let containerHtml = ContainerArray[0];
 	containerHtml.innerHTML = '';
@@ -130,7 +132,7 @@ async function reload(locationfield) {
 	tile = await getPixelTile(location);
 }
 function checkOwner(owner) {
-	if(owner != accounts[0]) {
+	if(owner != currentaccount) {
 		alert("not your tile");
 		return false;
 	}
@@ -152,12 +154,12 @@ async function setTile(locationfield, pricefield) {
 	tile = await getPixelTile(location);
 	if (checkOwner(tile[0]) == false) return;
 	try {
-		await pixelmap.methods.setTile(location, tile[1], tile[2], priceWei).estimateGas({from: accounts[0]}
+		await pixelmap.methods.setTile(location, tile[1], tile[2], priceWei).estimateGas({from: currentaccount}
 		, async function(error, estimatedGas) {
 			if (error) { alert(error); }
 			else {
 				console.log(Web3.utils.toWei(price, 'ether'));
-				let txHash = await pixelmap.methods.setTile(location, tile[1], tile[2], priceWei).send({from: accounts[0]})
+				let txHash = await pixelmap.methods.setTile(location, tile[1], tile[2], priceWei).send({from: currentaccount})
 				.on('transactionHash', function(txHash){
 					document.getElementById("txHash_sellTile").innerHTML = 'Tx Hash: <a href="https://etherscan.io/tx/'+txHash+'" target="_blank">Etherscan Link</a>';
 				});
