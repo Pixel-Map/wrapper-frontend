@@ -34,17 +34,18 @@ async function startApp() {
 	if (window.ethereum) {
 		web3 = new Web3(ethereum);
 		try {
-			accounts = await ethereum.request({ method: 'eth_accounts' });
+			await window.web3.eth.requestAccounts();
 		} catch (error) {
 			console.log(error);
 		}
 	}
 	else if (window.web3) {
-		web3 = new Web3(web3.givenProvider);
+		web3 = new Web3(web3.currentProvider);
 	}
 	else {
 		console.log('Install Metamask');
 	}
+	accounts = await web3.eth.requestAccounts();
 	pixelmap = await getPixelmapContract(web3);
 	wrapper = await getWrapperContract(web3);
 	
