@@ -5,6 +5,7 @@ const wrapper_abi = [{"inputs":[],"stateMutability":"payable","type":"constructo
 let pixelmap;
 let wrapper;
 let accounts;
+let account;
 let fundsAvailable;
 let globalTilePrice;
 let ethbalanceinWei;
@@ -32,28 +33,29 @@ async function startApp() {
 	let content = '';
 	
 	if (window.ethereum) {
+		await ethereum.enable();
 		web3 = new Web3(ethereum);
 		try {
-			await window.web3.eth.requestAccounts();
+			accounts = await ethereum.request({ method: 'eth_accounts' });
 		} catch (error) {
 			console.log(error);
 		}
 	}
 	else if (window.web3) {
-		web3 = new Web3(web3.currentProvider);
+		web3 = new Web3(web3.givenProvider);
 	}
 	else {
 		console.log('Install Metamask');
 	}
-	accounts = await web3.eth.requestAccounts();
 	pixelmap = await getPixelmapContract(web3);
 	wrapper = await getWrapperContract(web3);
 	
 	
 	
-	ethbalanceinWei = await web3.eth.getBalance(accounts[0]);
+	account = web3.utils.toChecksumAddress(accounts[0]);
+	ethbalanceinWei = await web3.eth.getBalance(account);
 	
-	console.log(accounts,accounts[0],ethbalanceinWei);
+	console.log(accounts,accounts[0],account,ethbalanceinWei);
 	let ContainerArray = document.getElementsByClassName('container');
 	let containerHtml = ContainerArray[0];
 	containerHtml.innerHTML = '';
@@ -79,7 +81,9 @@ async function startApp() {
 				'<h2>2. - set Tile for Sale (to buy it yourself)</h2></a>' +
 				'</div>' +
 				'<div class="card card-body collapse show" id="detailStep1">' +
-				'<span class="mb-2">The process of wrapping your Tile involves buying your Tile from yourself. <b>*Warning* During this process, anyone can buy the Tile from you at your set price</b> (we recommend setting the price to an amount where you are happy to sell the Tile). <b>*Note: You will need more than the sales price of ETH in your wallet to complete the transitions.</b></span>' +
+				'<span class="mb-2">The process of wrapping your Tile involves buying your Tile from yourself.<br /><b>' +
+				'*Warning* During this process, anyone can buy the Tile from you at your set price</b><br /><br />'+
+				'We recommend setting the price to an amount where you are happy to sell the Tile.<br /><b>*Note: You will need more than the sales price of ETH in your wallet to complete the transitions.</b></span>' +
 				'<div class="input-group mb-3" style="max-width: 600px;">' +
 				'<span class="input-group-text" id="basic-addon3">Location (TokenID):</span><input type="number" class="form-control" placeholder="location" id="InputLocationID_step1" aria-label="InputLocationIDValue">' +
 				'</div>' +
@@ -136,7 +140,7 @@ async function reload(locationfield) {
 	tile = await getPixelTile(location);
 }
 function checkOwner(owner) {
-	if(owner != accounts[0]) {
+	if(owner != account) {
 		alert("not your tile");
 		return false;
 	}
@@ -158,12 +162,12 @@ async function setTile(locationfield, pricefield) {
 	tile = await getPixelTile(location);
 	if (checkOwner(tile[0]) == false) return;
 	try {
-		await pixelmap.methods.setTile(location, tile[1], tile[2], priceWei).estimateGas({from: accounts[0]}
+		await pixelmap.methods.setTile(location, tile[1], tile[2], priceWei).estimateGas({from: account}
 		, async function(error, estimatedGas) {
 			if (error) { alert(error); }
 			else {
 				console.log(Web3.utils.toWei(price, 'ether'));
-				let txHash = await pixelmap.methods.setTile(location, tile[1], tile[2], priceWei).send({from: accounts[0]})
+				let txHash = await pixelmap.methods.setTile(location, tile[1], tile[2], priceWei).send({from: account})
 				.on('transactionHash', function(txHash){
 					document.getElementById("txHash_sellTile").innerHTML = 'Tx Hash: <a href="https://etherscan.io/tx/'+txHash+'" target="_blank">Etherscan Link</a>';
 				});
@@ -180,11 +184,11 @@ async function wrap(locationfield) {
 	tile = await getPixelTile(location);
 	if (checkOwner(tile[0]) == false) return;
 	try {
-		await wrapper.methods.wrap(location).estimateGas({from: accounts[0],value: tile[3]}
+		await wrapper.methods.wrap(location).estimateGas({from: account,value: tile[3]}
 		,async function(error, estimateGas) {
 			if (error) { alert(error); }
 			else {
-				let txHash = await wrapper.methods.wrap(location).send({from: accounts[0],value: tile[3]})
+				let txHash = await wrapper.methods.wrap(location).send({from: account,value: tile[3]})
 				.on('transactionHash', function(txHash){
 					document.getElementById("txHash_buyTile").innerHTML = 'Tx Hash: <a href="https://etherscan.io/tx/'+txHash+'" target="_blank">Etherscan Link</a>';
 				});
