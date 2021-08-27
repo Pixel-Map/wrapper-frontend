@@ -79,7 +79,7 @@ async function startApp() {
 				'<h2>2. - set Tile for Sale (to buy it yourself)</h2></a>' +
 				'</div>' +
 				'<div class="card card-body collapse show" id="detailStep1">' +
-				'<span class="mb-2">Wrapping your Tile is buying your Tile from yourself, so you have to list it <b>(anyone can buy)</b> above floor price (8 ETH +), <br /><b>You need the amount of ETH to buy it via wrapping!</b></span>' +
+				'<span class="mb-2">The process of wrapping your Tile involves buying your Tile from yourself. <b>*Warning* During this process, anyone can buy the Tile from you at your set price</b> (we recommend setting the price to an amount where you are happy to sell the Tile). <b>*Note: You will need more than the sales price of ETH in your wallet to complete the transitions.</b></span>' +
 				'<div class="input-group mb-3" style="max-width: 600px;">' +
 				'<span class="input-group-text" id="basic-addon3">Location (TokenID):</span><input type="number" class="form-control" placeholder="location" id="InputLocationID_step1" aria-label="InputLocationIDValue">' +
 				'</div>' +
